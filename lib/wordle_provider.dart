@@ -10,6 +10,8 @@ class WordleProvider extends ChangeNotifier {
   List<String> excludedLetters = [];
   List<Wordle> board = [];
   String targetWord = '';
+  int count = 0;
+  final lettersPerRow = 5;
 
   init() {
     totalWords = words.all.where((element) => element.length == 5).toList();
@@ -25,4 +27,30 @@ class WordleProvider extends ChangeNotifier {
     targetWord = totalWords[random.nextInt(totalWords.length)].toUpperCase();
     print('The target word is: $targetWord');
   }
+
+  inputLetter(String letter) {
+    if (count < lettersPerRow) {
+      rowInputs.add(letter);
+      board[count] = Wordle(letter: letter);
+      count++;
+      print(rowInputs);
+      notifyListeners();
+    }
+  }
+
+  void deleteLetter() {
+    if (rowInputs.isNotEmpty) {
+      rowInputs.removeAt(rowInputs.length - 1);
+      print(rowInputs);
+    }
+    if (count > 0) {
+      board[count - 1] = Wordle(letter: '');
+      count--;
+    }
+    notifyListeners();
+  }
+
+  bool get isValidWord => totalWords.contains(rowInputs.join('').toLowerCase());
+
+  void checkWord() {}
 }
