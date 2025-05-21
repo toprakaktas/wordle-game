@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wordle_clone/helper_functions.dart';
 import 'package:wordle_clone/keyboard_view.dart';
 import 'package:wordle_clone/wordle_provider.dart';
 import 'package:wordle_clone/wordle_view.dart';
@@ -69,15 +70,7 @@ class _WordlePageState extends State<WordlePage> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            if (!provider.isValidWord) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'This word is not in the dictionary.',
-                                  ),
-                                ),
-                              );
-                            }
+                            _checkInput(provider);
                           },
                           child: const Text('CHECK'),
                         ),
@@ -89,5 +82,43 @@ class _WordlePageState extends State<WordlePage> {
         ),
       ),
     );
+  }
+
+  _checkInput(WordleProvider provider) {
+    if (provider.isWholeRowFilled) {
+      provider.checkWord();
+      if (!provider.isValidWord) {
+        showMessage(context, 'This word is not in my dictionary.');
+      }
+    } else {
+      showMessage(context, 'Please fill the whole row.');
+    }
+    if (provider.isWinner) {
+      showResult(
+        context: context,
+        title: 'Congratulations, you win!',
+        body: 'You found the word ${provider.targetWord}',
+        onQuit: () {
+          Navigator.pop(context);
+        },
+        onPlayAgain: () {
+          Navigator.pop(context);
+          provider.reset();
+        },
+      );
+    } else if (provider.doneTries) {
+      showResult(
+        context: context,
+        title: 'You lost! :(',
+        body: 'The word was ${provider.targetWord}',
+        onQuit: () {
+          Navigator.pop(context);
+        },
+        onPlayAgain: () {
+          Navigator.pop(context);
+          provider.reset();
+        },
+      );
+    }
   }
 }
